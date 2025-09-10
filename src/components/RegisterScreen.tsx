@@ -67,6 +67,25 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
   const [step, setStep] = useState(1);
   const { theme, toggleTheme } = useTheme();
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+    
+  //   if (step === 1) {
+  //     setStep(2);
+  //     return;
+  //   }
+    
+  //   setIsLoading(true);
+    
+  //   // Simular cadastro
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     onRegister();
+  //   }, 2000);
+  // };
+
+  const [error, setError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -76,13 +95,40 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
     }
     
     setIsLoading(true);
-    
-    // Simular cadastro
-    setTimeout(() => {
+    setError("");
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          username: formData.name,
+          password2: formData.confirmPassword
+        }),
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError("Erro ao fazer registro: " + (data.detail || JSON.stringify(data)));
+        setIsLoading(false);
+        return;
+      }
+
+      
+      if (data.access) {
+        localStorage.setItem("access_token", data.access);
+      }
       setIsLoading(false);
       onRegister();
-    }, 2000);
+    } catch (err) {
+      setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
+      setIsLoading(false);
+    }
   };
+
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

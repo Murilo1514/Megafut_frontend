@@ -31,16 +31,53 @@ export function LoginScreen({ onLogin, onBackToLanding, onGoToRegister }: LoginS
   const [isLoading, setIsLoading] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+    
+  //   // Simular login
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     onLogin();
+  //   }, 1500);
+  // };
+  const [error, setError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simular login
-    setTimeout(() => {
+    setError("");
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError("Erro ao fazer login: " + (data.detail || JSON.stringify(data)));
+        setIsLoading(false);
+        return;
+      }
+
+      
+      if (data.access) {
+        localStorage.setItem("access_token", data.access);
+      }
       setIsLoading(false);
       onLogin();
-    }, 1500);
+    } catch (err) {
+      setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <div className={`min-h-screen bg-background ${theme}`}>
@@ -156,6 +193,9 @@ export function LoginScreen({ onLogin, onBackToLanding, onGoToRegister }: LoginS
                 >
                   {isLoading ? "Entrando..." : "Entrar"}
                 </Button>
+                {error && (
+                  <p className="text-sm text-red-600 text-center mt-2">{error}</p>
+                )}
               </form>
               
               <div className="relative">
