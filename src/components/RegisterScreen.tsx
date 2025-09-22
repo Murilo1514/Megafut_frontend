@@ -97,21 +97,42 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
     setIsLoading(true);
     setError("");
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+      const response = await fetch("http://127.0.0.1:8000/api/register-player/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          username: formData.name,
-          password2: formData.confirmPassword
+          user:{
+            email: formData.email,
+            password: formData.password,
+            username: formData.name,
+            password2: formData.confirmPassword
+          },
+          player:{
+            score: 50,
+            position: formData.position ,
+            username: formData.name,
+          }
         }),
       });
       const data = await response.json();
       
+      // const response_player = await fetch("http://127.0.0.1:8000/api/player/", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     score: 50,
+      //     position: formData.posicao ,
+      //     username: formData.name,
+      //   }),
+      // });
+      // const data_player = await response_player.json();
+
       if (!response.ok) {
+        
         setError("Erro ao fazer registro: " + (data.detail || JSON.stringify(data)));
         setIsLoading(false);
         return;
@@ -124,9 +145,11 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
       setIsLoading(false);
       onRegister();
     } catch (err) {
+      
       setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
       setIsLoading(false);
     }
+
   };
 
 
@@ -364,6 +387,11 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
                 >
                   {isLoading ? "Criando conta..." : step === 1 ? "Continuar" : "Criar conta"}
                 </Button>
+                {error && (
+                  <p className="mt-2 text-sm text-destructive text-center">
+                    {error}
+                  </p>
+                )}
               </form>
               
               {step === 1 && (
