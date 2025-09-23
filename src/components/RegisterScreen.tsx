@@ -89,68 +89,91 @@ export function RegisterScreen({ onRegister, onBackToLanding, onGoToLogin }: Reg
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (step === 1) {
-      setStep(2);
-      return;
-    }
+    // if (step === 1) {
+    //   setStep(2);
+    //   return;
+    // }
     
-    setIsLoading(true);
-    setError("");
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/register-player/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user:{
-            email: formData.email,
-            password: formData.password,
-            username: formData.name,
-            password2: formData.confirmPassword
+    if (step === 1) {
+      setIsLoading(true);
+      setError("");
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/register/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          player:{
-            score: 50,
-            position: formData.position ,
-            username: formData.name,
-          }
-        }),
-      });
-      const data = await response.json();
-      
-      // const response_player = await fetch("http://127.0.0.1:8000/api/player/", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     score: 50,
-      //     position: formData.posicao ,
-      //     username: formData.name,
-      //   }),
-      // });
-      // const data_player = await response_player.json();
-
-      if (!response.ok) {
+          body: JSON.stringify({
+            // user:{
+              email: formData.email,
+              password: formData.password,
+              username: formData.name,
+              password2: formData.confirmPassword
+            // },
+            // player:{
+            //   score: 50,
+            //   position: formData.position ,
+            //   username: formData.name,
+            // }
+          }),
+        });
+        const data = await response.json();
         
-        setError("Erro ao fazer registro: " + (data.detail || JSON.stringify(data)));
+
+
+        if (!response.ok) {
+          
+          setError("Erro ao fazer registro: " + (data.detail || JSON.stringify(data)));
+          setIsLoading(false);
+          return;
+        }
+
+        
+        if (data.access) {
+          localStorage.setItem("access_token", data.access);
+        }
         setIsLoading(false);
-        return;
+        // onRegister();
+        setStep(2);
+      } catch (err) {
+        
+        setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
+        setIsLoading(false);
       }
+    }else {
+      try{
+        const response_player = await fetch("http://127.0.0.1:8000/api/player/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            score: 50,
+            position: formData.posicao ,
+            username: formData.name,
+          }),
+        });
+        const data_player = await response_player.json();
 
+        
+        if (!response_player.ok) {
+          
+          setError("Erro ao fazer registro: " + (data_player.detail || JSON.stringify(data_player)));
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(false);
+        onRegister();
       
-      if (data.access) {
-        localStorage.setItem("access_token", data.access);
+      } catch (err) {
+        
+        setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
+        setIsLoading(false);
       }
-      setIsLoading(false);
-      onRegister();
-    } catch (err) {
-      
-      setError("Erro de conexão. Tente novamente. " + (err instanceof Error ? err.message : String(err)));
-      setIsLoading(false);
     }
-
-  };
+  
+};
 
 
   const updateFormData = (field: string, value: string) => {
