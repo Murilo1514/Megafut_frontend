@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { TeamCard } from "./TeamCard";
+import { CreateTeamScreen } from "./CreateTeamScreen";
+import { TeamDetailScreen } from "./TeamDetailScreen";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -63,6 +66,16 @@ const teams = [
 ];
 
 export function TeamsScreen() {
+  const [currentView, setCurrentView] = useState<"list" | "create" | "detail">("list");
+
+  if (currentView === "create") {
+    return <CreateTeamScreen onBack={() => setCurrentView("list")} />;
+  }
+
+  if (currentView === "detail") {
+    return <TeamDetailScreen onBack={() => setCurrentView("list")} />;
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Header da página principal */}
@@ -74,7 +87,10 @@ export function TeamsScreen() {
               Gerencie seus times de futebol e futsal
             </p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90">
+          <Button 
+            className="gap-2 bg-primary hover:bg-primary/90"
+            onClick={() => setCurrentView("create")}
+          >
             <Plus className="h-4 w-4" />
             Criar Time
           </Button>
@@ -115,6 +131,11 @@ export function TeamsScreen() {
               foundedYear={team.foundedYear}
               category={team.category}
               achievements={team.achievements}
+              onViewDetails={() => setCurrentView("detail")}
+              onEdit={() => {
+                // Implementar edição do time
+                console.log("Editando time:", team.name);
+              }}
             />
           ))}
         </div>
@@ -127,7 +148,10 @@ export function TeamsScreen() {
             <p className="text-muted-foreground mb-4">
               Comece criando seu primeiro time
             </p>
-            <Button className="gap-2 bg-primary hover:bg-primary/90">
+            <Button 
+              className="gap-2 bg-primary hover:bg-primary/90"
+              onClick={() => setCurrentView("create")}
+            >
               <Plus className="h-4 w-4" />
               Criar Primeiro Time
             </Button>
