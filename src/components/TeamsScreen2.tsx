@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useStatem, useEffect } from "react";
 import { TeamCard } from "./TeamCard";
 import { CreateTeamScreen } from "./CreateTeamScreen";
 import { TeamDetailScreen } from "./TeamDetailScreen";
@@ -7,14 +7,79 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Plus, Search, Filter, Users } from "lucide-react";
 
+  
+
+// Mock data para demonstração
+
+
+
+// const teams = [
+//   {
+//     id: 1,
+//     name: "Pelada FC",
+//     description: "Time de futebol amador da zona sul de São Paulo",
+//     memberCount: 18,
+//     foundedYear: 2020,
+//     category: "Futebol",
+//     achievements: 12
+//   },
+//   {
+//     id: 2,
+//     name: "Unidos da Vila",
+//     description: "Equipe tradicional de futsal da Vila Madalena",
+//     memberCount: 14,
+//     foundedYear: 2018,
+//     category: "Futsal",
+//     achievements: 8
+//   },
+//   {
+//     id: 3,
+//     name: "Amigos United",
+//     description: "Time casual para peladas de final de semana",
+//     memberCount: 22,
+//     foundedYear: 2021,
+//     category: "Futebol",
+//     achievements: 5
+//   },
+//   {
+//     id: 4,
+//     name: "Galera do Ibirapuera",
+//     description: "Grupo que se reúne no parque para jogar futebol",
+//     memberCount: 16,
+//     foundedYear: 2019,
+//     category: "Futebol",
+//     achievements: 15
+//   },
+//   {
+//     id: 5,
+//     name: "Futsal Brothers",
+//     description: "Time competitivo de futsal da região central",
+//     memberCount: 12,
+//     foundedYear: 2017,
+//     category: "Futsal",
+//     achievements: 23
+//   },
+//   {
+//     id: 6,
+//     name: "Raça e Paixão FC",
+//     description: "Time de veteranos acima de 35 anos",
+//     memberCount: 20,
+//     foundedYear: 2015,
+//     category: "Futebol",
+//     achievements: 31
+//   }
+// ];
+
 export function TeamsScreen() {
   const [currentView, setCurrentView] = useState<"list" | "create" | "detail">("list");
+
   const [searchTerm, setSearchTerm] = useState(""); 
   const [teams, setTeams] = useState<any[]>([]); // estado para os times
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Busca no backend
+
+
   useEffect(() => {
     async function fetchTeams() {
       try {
@@ -32,6 +97,7 @@ export function TeamsScreen() {
     fetchTeams();
   }, []);
 
+
   if (currentView === "create") {
     return <CreateTeamScreen onBack={() => setCurrentView("list")} />;
   }
@@ -39,11 +105,6 @@ export function TeamsScreen() {
   if (currentView === "detail") {
     return <TeamDetailScreen onBack={() => setCurrentView("list")} />;
   }
-
-  // Filtrando times pelo termo de busca
-  const filteredTeams = teams.filter((team) =>
-    team.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="flex flex-col h-full">
@@ -92,47 +153,41 @@ export function TeamsScreen() {
       
       {/* Lista de times */}
       <div className="flex-1 p-6 overflow-auto">
-        {loading && <p>Carregando times...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-
-        {!loading && !error && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTeams.map((team) => (
-                <TeamCard
-                  key={team.id}
-                  name={team.name}
-                  description={team.description}
-                  memberCount={team.memberCount}
-                  foundedYear={new Date(team.created_at).getFullYear()}
-                  category={team.category}
-                  achievements={team.achievements}
-                  onViewDetails={() => setCurrentView("detail")}
-                  onEdit={() => {
-                    console.log("Editando time:", team.name);
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Estado vazio */}
-            {filteredTeams.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-64 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">Nenhum time encontrado</h3>
-                <p className="text-muted-foreground mb-4">
-                  Comece criando seu primeiro time
-                </p>
-                <Button 
-                  className="gap-2 bg-primary hover:bg-primary/90"
-                  onClick={() => setCurrentView("create")}
-                >
-                  <Plus className="h-4 w-4" />
-                  Criar Primeiro Time
-                </Button>
-              </div>
-            )}
-          </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {teams.map((team) => (
+            <TeamCard
+              key={team.id}
+              name={team.name}
+              description={team.description}
+              memberCount={team.memberCount}
+              foundedYear={team.foundedYear}
+              category={team.category}
+              achievements={team.achievements}
+              onViewDetails={() => setCurrentView("detail")}
+              onEdit={() => {
+                // Implementar edição do time
+                console.log("Editando time:", team.name);
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Estado vazio quando não há times */}
+        {teams.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <Users className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium">Nenhum time encontrado</h3>
+            <p className="text-muted-foreground mb-4">
+              Comece criando seu primeiro time
+            </p>
+            <Button 
+              className="gap-2 bg-primary hover:bg-primary/90"
+              onClick={() => setCurrentView("create")}
+            >
+              <Plus className="h-4 w-4" />
+              Criar Primeiro Time
+            </Button>
+          </div>
         )}
       </div>
     </div>

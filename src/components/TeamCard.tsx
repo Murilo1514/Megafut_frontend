@@ -33,7 +33,7 @@ export function TeamCard({
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>{memberCount} membros</span>
+          <span>{memberCount} Membros</span>
         </div>
         
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -43,7 +43,7 @@ export function TeamCard({
         
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Trophy className="h-4 w-4" />
-          <span>{achievements} conquistas</span>
+          <span>{achievements} Conquistas</span>
         </div>
       </CardContent>
       
