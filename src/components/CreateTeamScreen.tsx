@@ -48,49 +48,52 @@ const posicoesFutebol = [
   { value: "pivo", label: "Pivô (Futsal)" }
 ];
 
+
+
+// const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
 // Mock data para jogadores disponíveis
-const availablePlayers = [
-  { 
-    id: 1, 
-    username: "joaosilva", 
-    name: "João Silva", 
-    position: "atacante",
-    overallRating: 78,
-    gamesPlayed: 45
-  },
-  { 
-    id: 2, 
-    username: "mariacosta", 
-    name: "Maria Costa", 
-    position: "meio-campo-central",
-    overallRating: 82,
-    gamesPlayed: 67
-  },
-  { 
-    id: 3, 
-    username: "pedrolima", 
-    name: "Pedro Lima", 
-    position: "goleiro",
-    overallRating: 85,
-    gamesPlayed: 34
-  },
-  { 
-    id: 4, 
-    username: "anasouza", 
-    name: "Ana Souza", 
-    position: "zagueiro-central",
-    overallRating: 76,
-    gamesPlayed: 52
-  },
-  { 
-    id: 5, 
-    username: "carlospereira", 
-    name: "Carlos Pereira", 
-    position: "lateral-direito",
-    overallRating: 79,
-    gamesPlayed: 38
-  }
-];
+// const availablePlayers = [
+//   { 
+//     id: 1, 
+//     username: "joaosilva", 
+//     name: "João Silva", 
+//     position: "atacante",
+//     overallRating: 78,
+//     gamesPlayed: 45
+//   },
+//   { 
+//     id: 2, 
+//     username: "mariacosta", 
+//     name: "Maria Costa", 
+//     position: "meio-campo-central",
+//     overallRating: 82,
+//     gamesPlayed: 67
+//   },
+//   { 
+//     id: 3, 
+//     username: "pedrolima", 
+//     name: "Pedro Lima", 
+//     position: "goleiro",
+//     overallRating: 85,
+//     gamesPlayed: 34
+//   },
+//   { 
+//     id: 4, 
+//     username: "anasouza", 
+//     name: "Ana Souza", 
+//     position: "zagueiro-central",
+//     overallRating: 76,
+//     gamesPlayed: 52
+//   },
+//   { 
+//     id: 5, 
+//     username: "carlospereira", 
+//     name: "Carlos Pereira", 
+//     position: "lateral-direito",
+//     overallRating: 79,
+//     gamesPlayed: 38
+//   }
+// ];
 
 // Mock data para histórico de partidas
 const matchHistory = [
@@ -145,7 +148,7 @@ export function CreateTeamScreen({ onBack }: CreateTeamScreenProps) {
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-
+  const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const getPositionLabel = (positionValue: string) => {
     const position = posicoesFutebol.find(p => p.value === positionValue);
     return position ? position.label : positionValue;
@@ -172,6 +175,31 @@ export function CreateTeamScreen({ onBack }: CreateTeamScreenProps) {
   const removePlayerFromTeam = (playerId: number) => {
     setSelectedPlayers(selectedPlayers.filter(p => p.id !== playerId));
   };
+
+
+  const fetchPlayers = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/player/");
+      const data = await response.json();
+
+      // Transformar os dados recebidos para o formato necessário
+      const formattedPlayers: Player[] = data.map((item: any) => ({
+        id: item.user.id,
+        username: item.user.username,
+        name: item.user.username, // ou outro nome se vier do backend
+        position: item.position?.toLowerCase() || "posição indefinida",
+        overallRating: item.score || 0,
+        gamesPlayed: 0, // você pode ajustar isso se vier do backend
+      }));
+
+      setAvailablePlayers(formattedPlayers);
+    } catch (error) {
+      console.error("Erro ao buscar jogadores:", error);
+    }
+  };
+
+
+
 
   const updatePlayerPosition = (playerId: number, newPosition: string) => {
     setSelectedPlayers(selectedPlayers.map(p => 
@@ -252,7 +280,12 @@ export function CreateTeamScreen({ onBack }: CreateTeamScreenProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
+          <Dialog open={isSearchDialogOpen} 
+            onOpenChange={(open) => {
+              setIsSearchDialogOpen(open);
+              if (open) fetchPlayers();
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="w-full gap-2">
                 <Search className="h-4 w-4" />
@@ -388,7 +421,7 @@ export function CreateTeamScreen({ onBack }: CreateTeamScreenProps) {
   const renderStep3 = () => (
     <div className="space-y-6">
       {/* Histórico de Partidas */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
@@ -440,7 +473,7 @@ export function CreateTeamScreen({ onBack }: CreateTeamScreenProps) {
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Resumo do Time */}
       <Card>
